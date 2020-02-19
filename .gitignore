@@ -1,0 +1,10 @@
+# sbt files
+target/
+
+# Editor files
+.vscode
+
+# Scala Metals
+.metals/
+metals.sbt
+.bloop/
