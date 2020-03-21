@@ -212,6 +212,16 @@ class ReductionsSuite {
     check("", true)
   }
 
+  @Test def `parBalance should work for empty string`: Unit = {
+    def check(input: String, threshold: Int, expected: Boolean) =
+      assert(
+        parBalance(input.toArray, threshold) == expected,
+        s"parBalance($input, $threshold) should be $expected"
+      )
+
+    check("", 5, true)
+  }
+
   @Test def `balance should work for string of length 1`: Unit = {
     def check(input: String, expected: Boolean) =
       assert(balance(input.toArray) == expected, s"balance($input) should be $expected")
@@ -219,6 +229,18 @@ class ReductionsSuite {
     check("(", false)
     check(")", false)
     check(".", true)
+  }
+
+  @Test def `parBalance should work for string of length 1`: Unit = {
+    def check(input: String, threshold: Int, expected: Boolean) =
+      assert(
+        parBalance(input.toArray, threshold) == expected,
+        s"parBalance($input, $threshold) should be $expected"
+      )
+
+    check("(", 5, false)
+    check(")", 5, false)
+    check(".", 5, true)
   }
 
   @Test def `balance should work for string of length 2`: Unit = {
@@ -234,5 +256,23 @@ class ReductionsSuite {
     check("(.", false)
     check(").", false)
   }
+
+  @Test def `parBalance should work for string of length 2`: Unit = {
+    def check(input: String, threshold: Int, expected: Boolean) =
+      assert(
+        parBalance(input.toArray, threshold) == expected,
+        s"parBalance($input, $threshold) should be $expected"
+      )
+
+    check("()", 5, true)
+    check(")(", 5, false)
+    check("((", 5, false)
+    check("))", 5, false)
+    check(".)", 5, false)
+    check(".(", 5, false)
+    check("(.", 5, false)
+    check(").", 5, false)
+  }
+
   @Rule def individualTestTimeout = new org.junit.rules.Timeout(10 * 1000)
 }

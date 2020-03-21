@@ -37,28 +37,50 @@ object ParallelParenthesesBalancingRunner {
 
 object ParallelParenthesesBalancing extends ParallelParenthesesBalancingInterface {
 
+  private def getValue(char: Char): Int = char match {
+    case '(' => 1
+    case ')' => -1
+    case _   => 0
+  }
+
   /** Returns `true` iff the parentheses in the input `chars` are balanced.
     */
   def balance(chars: Array[Char]): Boolean = {
-    ???
+
+    @tailrec
+    def balanceAcc(chars: List[Char], acc: Int): Boolean =
+      if (acc < 0) false
+      else if (chars.isEmpty) if (acc == 0) true else false
+      else balanceAcc(chars.tail, acc + getValue(chars.head))
+
+    balanceAcc(chars.toList, 0)
+
   }
 
-  /** Returns `true` iff the parentheses in the input `chars` are balanced.
+  /** Returns `true` if the parentheses in the input `chars` are balanced.
     */
   def parBalance(chars: Array[Char], threshold: Int): Boolean = {
 
-    def traverse(idx: Int, until: Int, arg1: Int, arg2: Int) /*: ???*/ = {
-      ???
+    @tailrec
+    def traverse(idx: Int, until: Int, arg1: Int, arg2: Int): (Int, Int) = {
+      if (idx == until) (arg1, arg2)
+      else {
+        val delta = arg1 + getValue(chars(idx))
+        val depth = arg2.min(arg2 + getValue(chars(idx)))
+        traverse(idx + 1, until, delta, depth)
+      }
     }
 
-    def reduce(from: Int, until: Int) /*: ???*/ = {
-      ???
+    def reduce(from: Int, until: Int): (Int, Int) = {
+      if (until - from <= threshold) traverse(from, until, 0, 0)
+      else {
+        val mid = from + ((until - from) / 2)
+        val (pair1, pair2) = parallel(reduce(from, mid), reduce(mid, until))
+        (pair1._1 + pair2._1, pair1._2 + pair2._2)
+      }
     }
 
-    reduce(0, chars.length) == ???
+    reduce(0, chars.length) == (0, 0)
   }
-
-  // For those who want more:
-  // Prove that your reduction operator is associative!
 
 }
