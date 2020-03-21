@@ -7,7 +7,13 @@ trait LineOfSightInterface {
   def lineOfSight(input: Array[Float], output: Array[Float]): Unit
   def upsweepSequential(input: Array[Float], from: Int, until: Int): Float
   def upsweep(input: Array[Float], from: Int, end: Int, threshold: Int): Tree
-  def downsweepSequential(input: Array[Float], output: Array[Float], startingAngle: Float, from: Int, until: Int): Unit
+  def downsweepSequential(
+      input: Array[Float],
+      output: Array[Float],
+      startingAngle: Float,
+      from: Int,
+      until: Int
+  ): Unit
   def downsweep(input: Array[Float], output: Array[Float], startingAngle: Float, tree: Tree): Unit
   def parLineOfSight(input: Array[Float], output: Array[Float], threshold: Int): Unit
 }
