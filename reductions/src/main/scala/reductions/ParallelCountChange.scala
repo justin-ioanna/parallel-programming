@@ -63,7 +63,9 @@ object ParallelCountChange extends ParallelCountChangeInterface {
     *  specified list of coins for the specified amount of money.
     */
   def parCountChange(money: Int, coins: List[Int], threshold: Threshold): Int = {
-    if (threshold(money, coins)) countChange(money, coins)
+    if (money == 0) 1
+    else if (money < 0 || coins.isEmpty) 0
+    else if (threshold(money, coins)) countChange(money, coins)
     else {
       val (count1, count2) = parallel(
         parCountChange(money - coins.head, coins, threshold),
