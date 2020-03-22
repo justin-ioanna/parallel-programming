@@ -48,12 +48,12 @@ object ParallelParenthesesBalancing extends ParallelParenthesesBalancingInterfac
   def balance(chars: Array[Char]): Boolean = {
 
     @tailrec
-    def balanceAcc(chars: List[Char], acc: Int): Boolean =
+    def balanceAcc(chars: Array[Char], acc: Int): Boolean =
       if (acc < 0) false
       else if (chars.isEmpty) if (acc == 0) true else false
       else balanceAcc(chars.tail, acc + getValue(chars.head))
 
-    balanceAcc(chars.toList, 0)
+    balanceAcc(chars, 0)
 
   }
 
@@ -66,7 +66,7 @@ object ParallelParenthesesBalancing extends ParallelParenthesesBalancingInterfac
       if (idx == until) (arg1, arg2)
       else {
         val delta = arg1 + getValue(chars(idx))
-        val depth = arg2.min(arg2 + getValue(chars(idx)))
+        val depth = arg2.min(delta)
         traverse(idx + 1, until, delta, depth)
       }
     }
@@ -75,11 +75,14 @@ object ParallelParenthesesBalancing extends ParallelParenthesesBalancingInterfac
       if (until - from <= threshold) traverse(from, until, 0, 0)
       else {
         val mid = from + ((until - from) / 2)
-        val (pair1, pair2) = parallel(reduce(from, mid), reduce(mid, until))
-        (pair1._1 + pair2._1, pair1._2 + pair2._2)
+        val ((delta1, depth1), (delta2, depth2)) = parallel(
+          reduce(from, mid),
+          reduce(mid, until)
+        )
+        (delta1 + delta2, depth1.min(delta1 + depth2))
       }
     }
-
+    println(reduce(0, chars.length))
     reduce(0, chars.length) == (0, 0)
   }
 

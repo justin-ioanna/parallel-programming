@@ -12,6 +12,7 @@ class ReductionsSuite {
     * LINE OF SIGHT *
    *****************/
   import LineOfSight._
+
   @Test def `lineOfSight should correctly handle an array of size 4`: Unit = {
     val output = new Array[Float](4)
     lineOfSight(Array[Float](0f, 1f, 8f, 9f), output)
@@ -264,14 +265,14 @@ class ReductionsSuite {
         s"parBalance($input, $threshold) should be $expected"
       )
 
-    check("()", 5, true)
-    check(")(", 5, false)
-    check("((", 5, false)
-    check("))", 5, false)
-    check(".)", 5, false)
-    check(".(", 5, false)
-    check("(.", 5, false)
-    check(").", 5, false)
+    check("()()()()()", 5, true)
+    check(")()()()()(", 5, false)
+    check("((((((((((", 5, false)
+    check("))))))))))", 5, false)
+    check(".).).).).)", 5, false)
+    check(".(.(.(.(.(", 5, false)
+    check("(.(.(.(.(.", 5, false)
+    check(").).).).).", 5, false)
   }
 
   @Rule def individualTestTimeout = new org.junit.rules.Timeout(10 * 1000)
