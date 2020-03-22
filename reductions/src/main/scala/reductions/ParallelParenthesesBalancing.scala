@@ -82,7 +82,6 @@ object ParallelParenthesesBalancing extends ParallelParenthesesBalancingInterfac
         (delta1 + delta2, depth1.min(delta1 + depth2))
       }
     }
-    println(reduce(0, chars.length))
     reduce(0, chars.length) == (0, 0)
   }
 
