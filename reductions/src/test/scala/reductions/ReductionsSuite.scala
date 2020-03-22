@@ -185,7 +185,7 @@ class ReductionsSuite {
     check(List(1), 6, true)
   }
 
-  @Test def `combinedThreshold returns true when coins <= 2/3 of total coins or when money <= 2/3 of starting money `
+  @Test def `combinedThreshold returns true when coins * money <=  (total coins * starting money) / 2 `
       : Unit = {
     def check(
         money: Int,
@@ -201,10 +201,8 @@ class ReductionsSuite {
       )
     }
 
-    check(60, 60, List(1, 2, 3, 4, 5, 6), List(1, 2, 3, 4, 5, 6), false)
-    check(60, 60, List(1, 2, 3, 4), List(1, 2, 3, 4, 5, 6), true)
-    check(40, 60, List(1, 2, 3, 4, 5, 6), List(1, 2, 3, 4, 5, 6), true)
-    check(40, 60, List(1, 2, 3, 4), List(1, 2, 3, 4, 5, 6), true)
+    check(50, 60, List(1, 2, 3, 4, 5), List(1, 2, 3, 4, 5, 6), false)
+    check(20, 60, List(1, 2), List(1, 2, 3, 4, 5, 6), true)
   }
 
   /**********************************
