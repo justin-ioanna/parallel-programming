@@ -19,7 +19,8 @@ class KMeans extends KMeansInterface {
         val y = ((i + 5) % k) * 1.0 / k + randy.nextDouble() * 0.5
         val z = ((i + 7) % k) * 1.0 / k + randz.nextDouble() * 0.5
         new Point(x, y, z)
-      }).to(mutable.ArrayBuffer)
+      })
+      .to(mutable.ArrayBuffer)
   }
 
   def initializeMeans(k: Int, points: Seq[Point]): Seq[Point] = {
@@ -44,77 +45,97 @@ class KMeans extends KMeansInterface {
   }
 
   def classify(points: Seq[Point], means: Seq[Point]): Map[Point, Seq[Point]] = {
-    ???
+    val clusters = points.groupBy(point => findClosest(point, means))
+    means.map(mean => (mean, clusters.getOrElse(mean, Seq[Point]()))).toMap
   }
 
   def classify(points: ParSeq[Point], means: ParSeq[Point]): ParMap[Point, ParSeq[Point]] = {
-    ???
+    val clusters = points.groupBy(point => findClosest(point, means))
+    means.map(mean => (mean, clusters.getOrElse(mean, ParSeq[Point]()))).toMap
   }
 
-  def findAverage(oldMean: Point, points: Seq[Point]): Point = if (points.isEmpty) oldMean else {
-    var x = 0.0
-    var y = 0.0
-    var z = 0.0
-    points.foreach { p =>
-      x += p.x
-      y += p.y
-      z += p.z
+  def findAverage(oldMean: Point, points: Seq[Point]): Point =
+    if (points.isEmpty) oldMean
+    else {
+      var x = 0.0
+      var y = 0.0
+      var z = 0.0
+      points.foreach { p =>
+        x += p.x
+        y += p.y
+        z += p.z
+      }
+      new Point(x / points.length, y / points.length, z / points.length)
     }
-    new Point(x / points.length, y / points.length, z / points.length)
-  }
 
-  def findAverage(oldMean: Point, points: ParSeq[Point]): Point = if (points.isEmpty) oldMean else {
-    var x = 0.0
-    var y = 0.0
-    var z = 0.0
-    points.seq.foreach { p =>
-      x += p.x
-      y += p.y
-      z += p.z
+  def findAverage(oldMean: Point, points: ParSeq[Point]): Point =
+    if (points.isEmpty) oldMean
+    else {
+      var x = 0.0
+      var y = 0.0
+      var z = 0.0
+      points.seq.foreach { p =>
+        x += p.x
+        y += p.y
+        z += p.z
+      }
+      new Point(x / points.length, y / points.length, z / points.length)
     }
-    new Point(x / points.length, y / points.length, z / points.length)
-  }
 
   def update(classified: Map[Point, Seq[Point]], oldMeans: Seq[Point]): Seq[Point] = {
-    ???
+    oldMeans.map(oldMean => findAverage(oldMean, classified(oldMean)))
   }
 
   def update(classified: ParMap[Point, ParSeq[Point]], oldMeans: ParSeq[Point]): ParSeq[Point] = {
-    ???
+    oldMeans.map(oldMean => findAverage(oldMean, classified(oldMean)))
   }
 
+  private def squareDistance(a: Point, b: Point): Double =
+    math.sqrt(math.pow((a.x - b.x), 2) + math.pow((a.y - b.y), 2) + math.pow((a.z - b.z), 2))
+
   def converged(eta: Double, oldMeans: Seq[Point], newMeans: Seq[Point]): Boolean = {
-    ???
+    oldMeans
+      .zip(newMeans)
+      .map({ case (oldMean, newMean) => squareDistance(oldMean, newMean) })
+      .forall(distance => distance <= eta)
   }
 
   def converged(eta: Double, oldMeans: ParSeq[Point], newMeans: ParSeq[Point]): Boolean = {
-    ???
+    oldMeans
+      .zip(newMeans)
+      .map({ case (oldMean, newMean) => squareDistance(oldMean, newMean) })
+      .forall(distance => distance <= eta)
   }
 
   @tailrec
   final def kMeans(points: Seq[Point], means: Seq[Point], eta: Double): Seq[Point] = {
-    if (???) kMeans(???, ???, ???) else ??? // your implementation need to be tail recursive
+    val clusters = classify(points, means)
+    val newMeans = update(clusters, means)
+    if (converged(eta, means, newMeans)) newMeans
+    else kMeans(points, newMeans, eta)
   }
 
   @tailrec
   final def kMeans(points: ParSeq[Point], means: ParSeq[Point], eta: Double): ParSeq[Point] = {
-    if (???) kMeans(???, ???, ???) else ??? // your implementation need to be tail recursive
+    val clusters = classify(points, means)
+    val newMeans = update(clusters, means)
+    if (converged(eta, means, newMeans)) newMeans
+    else kMeans(points, newMeans, eta)
   }
 }
 
 /** Describes one point in three-dimensional space.
- *
- *  Note: deliberately uses reference equality.
- */
+  *
+  *  Note: deliberately uses reference equality.
+  */
 class Point(val x: Double, val y: Double, val z: Double) {
   private def square(v: Double): Double = v * v
   def squareDistance(that: Point): Double = {
-    square(that.x - x)  + square(that.y - y) + square(that.z - z)
+    square(that.x - x) + square(that.y - y) + square(that.z - z)
   }
   private def round(v: Double): Double = (v * 100).toInt / 100.0
   override def toString = s"(${round(x)}, ${round(y)}, ${round(z)})"
 }
-
 
 object KMeansRunner {
 
@@ -123,7 +144,7 @@ object KMeansRunner {
     Key.exec.maxWarmupRuns -> 40,
     Key.exec.benchRuns -> 25,
     Key.verbose -> true
-  ) withWarmer(new Warmer.Default)
+  ) withWarmer (new Warmer.Default)
 
   def main(args: Array[String]): Unit = {
     val kMeans = new KMeans()
