@@ -6,7 +6,8 @@ import scala.collection.parallel.CollectionConverters._
 import org.scalameter._
 
 class ConcBuffer[@specialized(Byte, Char, Int, Long, Float, Double) T: ClassTag](
-  val k: Int, private var conc: Conc[T]
+    val k: Int,
+    private var conc: Conc[T]
 ) extends Iterable[T] {
   require(k > 0)
 
@@ -66,8 +67,7 @@ object ConcBufferRunner {
     val size = 1000000
 
     def run(p: Int): Unit = {
-      val taskSupport = new collection.parallel.ForkJoinTaskSupport(
-        new java.util.concurrent.ForkJoinPool(p))
+      val taskSupport = new collection.parallel.ForkJoinTaskSupport(new java.util.concurrent.ForkJoinPool(p))
       val strings = (0 until size).map(_.toString)
       val time = standardConfig measure {
         val parallelized = strings.par
